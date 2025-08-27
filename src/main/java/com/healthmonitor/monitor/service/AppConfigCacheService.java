@@ -54,7 +54,8 @@ public class AppConfigCacheService {
         return getAllEnabledAppConfigurations().stream()
                 .collect(Collectors.toMap(
                         AppConfiguration::getAppCode,
-                        AppConfiguration::getUrls
+                        AppConfiguration::getUrls,
+                        (existing, replacement) -> existing // Keep first occurrence in case of duplicates
                 ));
     }
 
