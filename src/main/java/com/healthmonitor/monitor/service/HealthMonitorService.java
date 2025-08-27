@@ -6,7 +6,7 @@ import com.healthmonitor.monitor.model.HealthSummary;
 import com.healthmonitor.monitor.model.PodHealth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
 import java.util.*;
@@ -14,14 +14,13 @@ import java.util.*;
 @Service
 public class HealthMonitorService {
     
-    private final WebClient webClient;
+    private final RestClient restClient;
     
     @Autowired
     private AppConfigCacheService appConfigCacheService;
     
     public HealthMonitorService() {
-        this.webClient = WebClient.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
+        this.restClient = RestClient.builder()
                 .build();
     }
     
@@ -77,12 +76,10 @@ public class HealthMonitorService {
         long startTime = System.currentTimeMillis();
         
         try {
-            String response = webClient.get()
+            String response = restClient.get()
                     .uri(healthUrl)
                     .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(Duration.ofSeconds(5))
-                    .block();
+                    .body(String.class);
             
             long responseTime = System.currentTimeMillis() - startTime;
             
